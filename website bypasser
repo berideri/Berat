@@ -1,0 +1,981 @@
+// <-- Put your VIP API key here
+const VIP_API_KEY = "2f5f3dc2-ea4c-4429-83f1-9b97e2b1e320";
+const PORT = process.env.PORT || 3000;
+
+const express = require("express");
+const app = express();
+
+let fetchFn = globalThis.fetch;
+try {
+  if (!fetchFn) fetchFn = require("node-fetch");
+} catch (e) {}
+
+app.use(express.json({ limit: "1mb" }));
+
+app.get("/", (req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brown Bypasser — Beautiful Link Bypass</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0f1724;
+    --bg2:#071021;
+    --card:#0b1220;
+    --accent:#7c5cff;
+    --muted:rgba(255,255,255,0.65);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.12), transparent 6%),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px;
+  }
+  .card{
+    width:960px;
+    max-width:95vw;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:14px;
+    padding:28px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:20px;
+    align-items:start;
+  }
+  .brand{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .logo-wrap{
+    width:56px;height:56px;border-radius:12px;
+    overflow:hidden;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(124,92,255,0.12);
+    background:linear-gradient(135deg,var(--accent),#00c2ff);
+  }
+  .logo-img{width:100%;height:100%;object-fit:cover;display:block}
+  h1{font-size:20px;margin:0 0 6px 0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  form.controls{display:flex;gap:10px;margin-top:16px}
+  input[type=text]{
+    flex:1;padding:14px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.02);color:inherit;font-size:14px;outline:none;
+    transition:box-shadow .15s, transform .08s;
+  }
+  input[type=text]:focus{box-shadow:0 6px 20px rgba(124,92,255,0.08);transform:translateY(-1px)}
+  button.primary{
+    background:linear-gradient(180deg,var(--accent),#5b3cff);
+    border:none;color:white;padding:12px 16px;border-radius:10px;font-weight:600;
+    cursor:pointer;min-width:120px;
+    box-shadow:0 8px 24px rgba(124,92,255,0.18);
+  }
+  button.primary:active{transform:translateY(1px)}
+  button.ghost{
+    background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);
+    padding:10px 12px;border-radius:10px;cursor:pointer;
+  }
+
+  .right{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.03);
+    font-size:13px;
+  }
+  .meta{font-size:12px;color:var(--muted);margin-top:8px}
+  pre.output{
+    background:linear-gradient(180deg, rgba(8,11,20,0.6), rgba(8,11,20,0.4));
+    padding:12px;border-radius:10px;margin-top:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    font-size:13px;color:#dff1ff;line-height:1.45;
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .row{display:flex;gap:10px;align-items:center}
+  .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,0.08);border-top-color:white;animation:spin 1s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="title">
+    <div>
+      <div class="brand">
+        <div class="logo-wrap">
+          <img class="logo-img" src="https://cdn.discordapp.com/avatars/1220885245176451158/3b1b75030c90bd528f4edd157c971151.png?size=1024" alt="Brown Bypasser logo">
+        </div>
+        <div>
+          <h1 id="title">Brown Bypasser — Premium Link Bypass</h1>
+          <p class="lead">Paste a link, press <strong>Get Result</strong>, and the server will call the bypass API and return the response.</p>
+        </div>
+      </div>
+
+      <form id="theForm" class="controls" onsubmit="return false;">
+        <input id="urlInput" type="text" placeholder="https://short.example/abc — paste the target link here" autocomplete="off" spellcheck="false" />
+        <button id="submitBtn" class="primary" title="Get Result">Get Result</button>
+        <button id="clearBtn" class="ghost" title="Clear">Clear</button>
+      </form>
+
+      <div class="meta">API call performed by this server's <code>/</code> POST endpoint. Your VIP API key must be set in the server code.</div>
+
+      <div id="resultArea">
+        <div style="margin-top:14px" class="small">Result</div>
+        <pre id="output" class="output">No result yet — enter a link and click "Get Result".</pre>
+      </div>
+    </div>
+
+    <div class="right" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Request Details</strong></div>
+        <div class="small">Safe proxy • server-side key</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="small">Entered URL</div>
+        <div id="enteredUrl" class="small" style="word-break:break-all;color:#cfe9ff">—</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Server status</div>
+        <div id="serverStatus" class="small">Ready</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Response actions</div>
+        <div style="margin-top:6px">
+          <button id="copyBtn" class="copy-btn" title="Copy output">Copy output</button>
+          <button id="downloadBtn" class="copy-btn" title="Download JSON">Download JSON</button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px" class="small">
+        Timeout: 15 seconds. If the remote host doesn't respond the server will abort the call.
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  const form = document.getElementById('theForm');
+  const input = document.getElementById('urlInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const output = document.getElementById('output');
+  const serverStatus = document.getElementById('serverStatus');
+  const enteredUrl = document.getElementById('enteredUrl');
+  const copyBtn = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  function setLoading(on){
+    submitBtn.disabled = on;
+    clearBtn.disabled = on;
+    serverStatus.innerHTML = on ? '<span class="row"><span class="spinner" aria-hidden="true"></span>&nbsp;Waiting for response…</span>' : 'Ready';
+  }
+
+  function pretty(obj){
+    try { return JSON.stringify(obj, null, 2); }
+    catch(e){ return String(obj); }
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    const url = (input.value || '').trim();
+    if(!url){ output.textContent = 'Please paste a URL to request.'; return; }
+    enteredUrl.textContent = url;
+    setLoading(true);
+    output.textContent = 'Contacting server…';
+    try {
+      const resp = await fetch('/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ url })
+      });
+      const text = await resp.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch(e) { data = text; }
+      output.textContent = typeof data === 'string' ? data : pretty(data);
+    } catch (err) {
+      output.textContent = 'Network error: ' + (err && err.message ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    enteredUrl.textContent = '—';
+    output.textContent = 'No result yet — enter a link and click "Get Result".';
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    } catch(e){
+      copyBtn.textContent = 'Copy failed';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([output.textContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bypass-result.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); submitBtn.click(); }
+  });
+})();
+</script>
+</body>
+</html>`);
+});
+
+app.post("/", async (req, res) => {
+  const targetUrl = (req.body && req.body.url) ? String(req.body.url).trim() : "";
+  if (!targetUrl) {
+    return res.status(400).json({ error: "Missing 'url' in request body. Send JSON: { url: 'https://...' }" });
+  }
+
+  if (!VIP_API_KEY || VIP_API_KEY.length < 5) {
+    return res.status(500).json({ error: "VIP_API_KEY is not set on the server. Please set VIP_API_KEY at top of server.js" });
+  }
+
+  const apiEndpoint = "https://api.bypass.vip/premium/bypass?url=" + encodeURIComponent(targetUrl);
+
+  const AbortController = globalThis.AbortController || require("abort-controller");
+  const controller = new AbortController();
+  const timeoutMs = 15000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    if (!fetchFn) throw new Error("Fetch is not available in this Node environment. Use Node 18+ or install node-fetch.");
+
+    const response = await fetchFn(apiEndpoint, {
+      method: "GET",
+      headers: {
+        "x-api-key": VIP_API_KEY,
+        "User-Agent": "AutoBypassService/1.0",
+        "Accept": "application/json"
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    const contentType = response.headers && response.headers.get ? response.headers.get("content-type") : "";
+    let body;
+    try {
+      if (contentType && contentType.includes("application/json")) {
+        body = await response.json();
+      } else {
+        body = await response.text();
+      }
+    } catch (e) {
+      body = await response.text().catch(() => String(e));
+    }
+
+    const responseHeaders = {};
+    try {
+      if (response.headers && typeof response.headers.forEach === "function") {
+        response.headers.forEach((v, k) => { responseHeaders[k] = v; });
+      } else if (response.headers && response.headers.entries) {
+        for (const [k, v] of response.headers.entries()) responseHeaders[k] = v;
+      }
+    } catch (e) {}
+
+    return res.json({
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      headers: responseHeaders,
+      body
+    });
+
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err && err.name === "AbortError") {
+      return res.status(504).json({ error: "Upstream request timed out after " + timeoutMs + "ms" });
+    }
+    return res.status(500).json({ error: err && err.message ? err.message : String(err) });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Brown Bypasser server running on http://localhost:${PORT} — set VIP_API_KEY at top of file.`);
+});
+// <-- Put your VIP API key here
+const VIP_API_KEY = "2f5f3dc2-ea4c-4429-83f1-9b97e2b1e320";
+const PORT = process.env.PORT || 3000;
+
+const express = require("express");
+const app = express();
+
+let fetchFn = globalThis.fetch;
+try {
+  if (!fetchFn) fetchFn = require("node-fetch");
+} catch (e) {}
+
+app.use(express.json({ limit: "1mb" }));
+
+app.get("/", (req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brown Bypasser — Beautiful Link Bypass</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0f1724;
+    --bg2:#071021;
+    --card:#0b1220;
+    --accent:#7c5cff;
+    --muted:rgba(255,255,255,0.65);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.12), transparent 6%),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px;
+  }
+  .card{
+    width:960px;
+    max-width:95vw;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:14px;
+    padding:28px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:20px;
+    align-items:start;
+  }
+  .brand{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .logo-wrap{
+    width:56px;height:56px;border-radius:12px;
+    overflow:hidden;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(124,92,255,0.12);
+    background:linear-gradient(135deg,var(--accent),#00c2ff);
+  }
+  .logo-img{width:100%;height:100%;object-fit:cover;display:block}
+  h1{font-size:20px;margin:0 0 6px 0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  form.controls{display:flex;gap:10px;margin-top:16px}
+  input[type=text]{
+    flex:1;padding:14px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.02);color:inherit;font-size:14px;outline:none;
+    transition:box-shadow .15s, transform .08s;
+  }
+  input[type=text]:focus{box-shadow:0 6px 20px rgba(124,92,255,0.08);transform:translateY(-1px)}
+  button.primary{
+    background:linear-gradient(180deg,var(--accent),#5b3cff);
+    border:none;color:white;padding:12px 16px;border-radius:10px;font-weight:600;
+    cursor:pointer;min-width:120px;
+    box-shadow:0 8px 24px rgba(124,92,255,0.18);
+  }
+  button.primary:active{transform:translateY(1px)}
+  button.ghost{
+    background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);
+    padding:10px 12px;border-radius:10px;cursor:pointer;
+  }
+
+  .right{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.03);
+    font-size:13px;
+  }
+  .meta{font-size:12px;color:var(--muted);margin-top:8px}
+  pre.output{
+    background:linear-gradient(180deg, rgba(8,11,20,0.6), rgba(8,11,20,0.4));
+    padding:12px;border-radius:10px;margin-top:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    font-size:13px;color:#dff1ff;line-height:1.45;
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .row{display:flex;gap:10px;align-items:center}
+  .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,0.08);border-top-color:white;animation:spin 1s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="title">
+    <div>
+      <div class="brand">
+        <div class="logo-wrap">
+          <img class="logo-img" src="https://cdn.discordapp.com/avatars/1220885245176451158/3b1b75030c90bd528f4edd157c971151.png?size=1024" alt="Brown Bypasser logo">
+        </div>
+        <div>
+          <h1 id="title">Brown Bypasser — Premium Link Bypass</h1>
+          <p class="lead">Paste a link, press <strong>Get Result</strong>, and the server will call the bypass API and return the response.</p>
+        </div>
+      </div>
+
+      <form id="theForm" class="controls" onsubmit="return false;">
+        <input id="urlInput" type="text" placeholder="https://short.example/abc — paste the target link here" autocomplete="off" spellcheck="false" />
+        <button id="submitBtn" class="primary" title="Get Result">Get Result</button>
+        <button id="clearBtn" class="ghost" title="Clear">Clear</button>
+      </form>
+
+      <div class="meta">API call performed by this server's <code>/</code> POST endpoint. Your VIP API key must be set in the server code.</div>
+
+      <div id="resultArea">
+        <div style="margin-top:14px" class="small">Result</div>
+        <pre id="output" class="output">No result yet — enter a link and click "Get Result".</pre>
+      </div>
+    </div>
+
+    <div class="right" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Request Details</strong></div>
+        <div class="small">Safe proxy • server-side key</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="small">Entered URL</div>
+        <div id="enteredUrl" class="small" style="word-break:break-all;color:#cfe9ff">—</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Server status</div>
+        <div id="serverStatus" class="small">Ready</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Response actions</div>
+        <div style="margin-top:6px">
+          <button id="copyBtn" class="copy-btn" title="Copy output">Copy output</button>
+          <button id="downloadBtn" class="copy-btn" title="Download JSON">Download JSON</button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px" class="small">
+        Timeout: 15 seconds. If the remote host doesn't respond the server will abort the call.
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  const form = document.getElementById('theForm');
+  const input = document.getElementById('urlInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const output = document.getElementById('output');
+  const serverStatus = document.getElementById('serverStatus');
+  const enteredUrl = document.getElementById('enteredUrl');
+  const copyBtn = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  function setLoading(on){
+    submitBtn.disabled = on;
+    clearBtn.disabled = on;
+    serverStatus.innerHTML = on ? '<span class="row"><span class="spinner" aria-hidden="true"></span>&nbsp;Waiting for response…</span>' : 'Ready';
+  }
+
+  function pretty(obj){
+    try { return JSON.stringify(obj, null, 2); }
+    catch(e){ return String(obj); }
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    const url = (input.value || '').trim();
+    if(!url){ output.textContent = 'Please paste a URL to request.'; return; }
+    enteredUrl.textContent = url;
+    setLoading(true);
+    output.textContent = 'Contacting server…';
+    try {
+      const resp = await fetch('/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ url })
+      });
+      const text = await resp.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch(e) { data = text; }
+      output.textContent = typeof data === 'string' ? data : pretty(data);
+    } catch (err) {
+      output.textContent = 'Network error: ' + (err && err.message ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    enteredUrl.textContent = '—';
+    output.textContent = 'No result yet — enter a link and click "Get Result".';
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    } catch(e){
+      copyBtn.textContent = 'Copy failed';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([output.textContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bypass-result.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); submitBtn.click(); }
+  });
+})();
+</script>
+</body>
+</html>`);
+});
+
+app.post("/", async (req, res) => {
+  const targetUrl = (req.body && req.body.url) ? String(req.body.url).trim() : "";
+  if (!targetUrl) {
+    return res.status(400).json({ error: "Missing 'url' in request body. Send JSON: { url: 'https://...' }" });
+  }
+
+  if (!VIP_API_KEY || VIP_API_KEY.length < 5) {
+    return res.status(500).json({ error: "VIP_API_KEY is not set on the server. Please set VIP_API_KEY at top of server.js" });
+  }
+
+  const apiEndpoint = "https://api.bypass.vip/premium/bypass?url=" + encodeURIComponent(targetUrl);
+
+  const AbortController = globalThis.AbortController || require("abort-controller");
+  const controller = new AbortController();
+  const timeoutMs = 15000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    if (!fetchFn) throw new Error("Fetch is not available in this Node environment. Use Node 18+ or install node-fetch.");
+
+    const response = await fetchFn(apiEndpoint, {
+      method: "GET",
+      headers: {
+        "x-api-key": VIP_API_KEY,
+        "User-Agent": "AutoBypassService/1.0",
+        "Accept": "application/json"
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    const contentType = response.headers && response.headers.get ? response.headers.get("content-type") : "";
+    let body;
+    try {
+      if (contentType && contentType.includes("application/json")) {
+        body = await response.json();
+      } else {
+        body = await response.text();
+      }
+    } catch (e) {
+      body = await response.text().catch(() => String(e));
+    }
+
+    const responseHeaders = {};
+    try {
+      if (response.headers && typeof response.headers.forEach === "function") {
+        response.headers.forEach((v, k) => { responseHeaders[k] = v; });
+      } else if (response.headers && response.headers.entries) {
+        for (const [k, v] of response.headers.entries()) responseHeaders[k] = v;
+      }
+    } catch (e) {}
+
+    return res.json({
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      headers: responseHeaders,
+      body
+    });
+
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err && err.name === "AbortError") {
+      return res.status(504).json({ error: "Upstream request timed out after " + timeoutMs + "ms" });
+    }
+    return res.status(500).json({ error: err && err.message ? err.message : String(err) });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Brown Bypasser server running on http://localhost:${PORT} — set VIP_API_KEY at top of file.`);
+});
+// <-- Put your VIP API key here
+const VIP_API_KEY = "2f5f3dc2-ea4c-4429-83f1-9b97e2b1e320";
+const PORT = process.env.PORT || 3000;
+
+const express = require("express");
+const app = express();
+
+let fetchFn = globalThis.fetch;
+try {
+  if (!fetchFn) fetchFn = require("node-fetch");
+} catch (e) {}
+
+app.use(express.json({ limit: "1mb" }));
+
+app.get("/", (req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Brown Bypasser — Beautiful Link Bypass</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0f1724;
+    --bg2:#071021;
+    --card:#0b1220;
+    --accent:#7c5cff;
+    --muted:rgba(255,255,255,0.65);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.12), transparent 6%),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px;
+  }
+  .card{
+    width:960px;
+    max-width:95vw;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:14px;
+    padding:28px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:20px;
+    align-items:start;
+  }
+  .brand{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .logo-wrap{
+    width:56px;height:56px;border-radius:12px;
+    overflow:hidden;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(124,92,255,0.12);
+    background:linear-gradient(135deg,var(--accent),#00c2ff);
+  }
+  .logo-img{width:100%;height:100%;object-fit:cover;display:block}
+  h1{font-size:20px;margin:0 0 6px 0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  form.controls{display:flex;gap:10px;margin-top:16px}
+  input[type=text]{
+    flex:1;padding:14px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.02);color:inherit;font-size:14px;outline:none;
+    transition:box-shadow .15s, transform .08s;
+  }
+  input[type=text]:focus{box-shadow:0 6px 20px rgba(124,92,255,0.08);transform:translateY(-1px)}
+  button.primary{
+    background:linear-gradient(180deg,var(--accent),#5b3cff);
+    border:none;color:white;padding:12px 16px;border-radius:10px;font-weight:600;
+    cursor:pointer;min-width:120px;
+    box-shadow:0 8px 24px rgba(124,92,255,0.18);
+  }
+  button.primary:active{transform:translateY(1px)}
+  button.ghost{
+    background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);
+    padding:10px 12px;border-radius:10px;cursor:pointer;
+  }
+
+  .right{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.03);
+    font-size:13px;
+  }
+  .meta{font-size:12px;color:var(--muted);margin-top:8px}
+  pre.output{
+    background:linear-gradient(180deg, rgba(8,11,20,0.6), rgba(8,11,20,0.4));
+    padding:12px;border-radius:10px;margin-top:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    font-size:13px;color:#dff1ff;line-height:1.45;
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .row{display:flex;gap:10px;align-items:center}
+  .spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,0.08);border-top-color:white;animation:spin 1s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="title">
+    <div>
+      <div class="brand">
+        <div class="logo-wrap">
+          <img class="logo-img" src="https://cdn.discordapp.com/avatars/1220885245176451158/3b1b75030c90bd528f4edd157c971151.png?size=1024" alt="Brown Bypasser logo">
+        </div>
+        <div>
+          <h1 id="title">Brown Bypasser — Premium Link Bypass</h1>
+          <p class="lead">Paste a link, press <strong>Get Result</strong>, and the server will call the bypass API and return the response.</p>
+        </div>
+      </div>
+
+      <form id="theForm" class="controls" onsubmit="return false;">
+        <input id="urlInput" type="text" placeholder="https://short.example/abc — paste the target link here" autocomplete="off" spellcheck="false" />
+        <button id="submitBtn" class="primary" title="Get Result">Get Result</button>
+        <button id="clearBtn" class="ghost" title="Clear">Clear</button>
+      </form>
+
+      <div class="meta">API call performed by this server's <code>/</code> POST endpoint. Your VIP API key must be set in the server code.</div>
+
+      <div id="resultArea">
+        <div style="margin-top:14px" class="small">Result</div>
+        <pre id="output" class="output">No result yet — enter a link and click "Get Result".</pre>
+      </div>
+    </div>
+
+    <div class="right" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Request Details</strong></div>
+        <div class="small">Safe proxy • server-side key</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="small">Entered URL</div>
+        <div id="enteredUrl" class="small" style="word-break:break-all;color:#cfe9ff">—</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Server status</div>
+        <div id="serverStatus" class="small">Ready</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Response actions</div>
+        <div style="margin-top:6px">
+          <button id="copyBtn" class="copy-btn" title="Copy output">Copy output</button>
+          <button id="downloadBtn" class="copy-btn" title="Download JSON">Download JSON</button>
+        </div>
+      </div>
+
+      <div style="margin-top:16px" class="small">
+        Timeout: 15 seconds. If the remote host doesn't respond the server will abort the call.
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  const form = document.getElementById('theForm');
+  const input = document.getElementById('urlInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const output = document.getElementById('output');
+  const serverStatus = document.getElementById('serverStatus');
+  const enteredUrl = document.getElementById('enteredUrl');
+  const copyBtn = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  function setLoading(on){
+    submitBtn.disabled = on;
+    clearBtn.disabled = on;
+    serverStatus.innerHTML = on ? '<span class="row"><span class="spinner" aria-hidden="true"></span>&nbsp;Waiting for response…</span>' : 'Ready';
+  }
+
+  function pretty(obj){
+    try { return JSON.stringify(obj, null, 2); }
+    catch(e){ return String(obj); }
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    const url = (input.value || '').trim();
+    if(!url){ output.textContent = 'Please paste a URL to request.'; return; }
+    enteredUrl.textContent = url;
+    setLoading(true);
+    output.textContent = 'Contacting server…';
+    try {
+      const resp = await fetch('/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ url })
+      });
+      const text = await resp.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch(e) { data = text; }
+      output.textContent = typeof data === 'string' ? data : pretty(data);
+    } catch (err) {
+      output.textContent = 'Network error: ' + (err && err.message ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    enteredUrl.textContent = '—';
+    output.textContent = 'No result yet — enter a link and click "Get Result".';
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    } catch(e){
+      copyBtn.textContent = 'Copy failed';
+      setTimeout(()=> copyBtn.textContent = 'Copy output', 1400);
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([output.textContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bypass-result.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); submitBtn.click(); }
+  });
+})();
+</script>
+</body>
+</html>`);
+});
+
+app.post("/", async (req, res) => {
+  const targetUrl = (req.body && req.body.url) ? String(req.body.url).trim() : "";
+  if (!targetUrl) {
+    return res.status(400).json({ error: "Missing 'url' in request body. Send JSON: { url: 'https://...' }" });
+  }
+
+  if (!VIP_API_KEY || VIP_API_KEY.length < 5) {
+    return res.status(500).json({ error: "VIP_API_KEY is not set on the server. Please set VIP_API_KEY at top of server.js" });
+  }
+
+  const apiEndpoint = "https://api.bypass.vip/premium/bypass?url=" + encodeURIComponent(targetUrl);
+
+  const AbortController = globalThis.AbortController || require("abort-controller");
+  const controller = new AbortController();
+  const timeoutMs = 15000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    if (!fetchFn) throw new Error("Fetch is not available in this Node environment. Use Node 18+ or install node-fetch.");
+
+    const response = await fetchFn(apiEndpoint, {
+      method: "GET",
+      headers: {
+        "x-api-key": VIP_API_KEY,
+        "User-Agent": "AutoBypassService/1.0",
+        "Accept": "application/json"
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    const contentType = response.headers && response.headers.get ? response.headers.get("content-type") : "";
+    let body;
+    try {
+      if (contentType && contentType.includes("application/json")) {
+        body = await response.json();
+      } else {
+        body = await response.text();
+      }
+    } catch (e) {
+      body = await response.text().catch(() => String(e));
+    }
+
+    const responseHeaders = {};
+    try {
+      if (response.headers && typeof response.headers.forEach === "function") {
+        response.headers.forEach((v, k) => { responseHeaders[k] = v; });
+      } else if (response.headers && response.headers.entries) {
+        for (const [k, v] of response.headers.entries()) responseHeaders[k] = v;
+      }
+    } catch (e) {}
+
+    return res.json({
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      headers: responseHeaders,
+      body
+    });
+
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err && err.name === "AbortError") {
+      return res.status(504).json({ error: "Upstream request timed out after " + timeoutMs + "ms" });
+    }
+    return res.status(500).json({ error: err && err.message ? err.message : String(err) });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Brown Bypasser server running on http://localhost:${PORT} — set VIP_API_KEY at top of file.`);
+});
